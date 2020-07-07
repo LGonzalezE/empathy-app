@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="">
+	<meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+	<meta name="generator" content="Jekyll v4.0.1">
+	<title>Empathy App</title>
+
+	<!-- Bootstrap core CSS -->
+	<link href="/css/bootstrap/bootstrap.css" rel="stylesheet">
+	<script src="https://code.jquery.com/jquery-1.11.3.js"></script>
+	<script src="/js/bootstrap/bootstrap.js"></script>
+	<script src="/js/home/board.js"></script>
+
+	<style>
+		.bd-placeholder-img {
+			font-size: 1.125rem;
+			text-anchor: middle;
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
+		}
+
+		@media (min-width : 768px) {
+			.bd-placeholder-img-lg {
+				font-size: 3.5rem;
+			}
+		}
+	</style>
+
+
+</head>
+
+<body>
+
+	<template id="issue-container-template">
+		<div id="issue-lane-{issueID}" class="row" style="border-bottom-style: dotted;">
+			<div id="issue-item-{issueID}" class="col-3">
+				<p id="issue-description-{issueID}"></p>
+			</div>
+			<div id="issue-backlog-container-{issueID}" class="col-9"></div>
+		</div>
+	</template>
+
+	<template id="member-item-template">
+		<div id="member-item-{memberID}" class="row">
+			<div id="member-avatar-{memberID}" class="col-2 text-center">
+				<img src="/img/avatar/avatar-default.png" style="width: 96px" /> <span
+					id="member-name-{memberID}"></span>
+			</div>
+			<div id="member-backlog-container-{memberID}" class="col-10 ">
+			</div>
+		</div>
+	</template>
+
+	<template id="member-issue-progress-lane-template">
+		<div id="member-issue-progress-lane-{issueID}" class="row"
+			style="padding-top: 5px; padding-right: 5px; padding-bottom: 5px; padding-left: 5px;">
+			<form id="member-issue-{issueID}">
+				<input id="member-issue-name-{issueID}" type="hidden">
+				<input id="member-issue-description-{issueID}" type="hidden">
+				<input id="member-issue-id-{issueID}" type="hidden">
+			</form>
+			<div class="col-12">
+				<a href="#" onclick="showDaily('{issueID}')">
+				<div class="progress">
+					<div id="member-issue-progress-{issueID}" class="progress-bar progress-bar-striped"
+						role="progressbar" style="width: 50%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+					</div>
+				</div>
+				</a>
+			</div>
+		</div>
+	</template>
+
+	<form id="app">
+		<input id="appName" type="hidden" th:value="${appName}" />
+	</form>
+
+	<form id="sprint">
+		<input id="sprintName" type="hidden" th:value="${sprintSummary.name}" />
+		<input id="sprintStatsProgress" type="hidden" th:value="${sprintSummary.metaData.progress}" />
+	</form>
+
+	<div id="sprint-container" class="container">
+		<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+			<a class="navbar-brand" href="#">Empahty App</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+				aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+
+			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+				<ul class="navbar-nav mr-auto">
+					<li class="nav-item active">
+						<a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="/dashboard">Dashboard</a>
+					</li>
+				</ul>
+				<form class="form-inline my-2 my-lg-0">
+					<input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+					<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+				</form>
+			</div>
+		</nav>
+		
+		<div id="sprint-header-container" class="row" style="border-bottom-style: dotted;">
+			<div id="sprint-name-container" class="col-3">
+				<h1 id="sprint-name"></h1>
+			</div>
+			<div id="sprint-progress-container" class="col-9"
+				style="padding-top: 25px; padding-right: 5px; padding-bottom: 5px; padding-left: 5px;">
+				<div class="progress">
+					<div id="sprint-stats-progress" class="progress-bar bg-success" role="progressbar" style="width: 0%"
+						aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+				</div>
+			</div>
+		</div>
+
+		<div id="backlog-container">
+
+		</div>
+		<footer class="mastfoot mt-auto">
+			<div class="inner">
+				<p>
+					Empathy App, by <a href="mailto:leonardo.gonzalez.escobar@gmail.com">Leonardo
+						G.</a>.
+				</p>
+			</div>
+		</footer>
+
+	</div>
+
+
+
+	<!-- Daily-Modal -->
+	<div class="modal fade" id="daily-modal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
+		aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="staticBackdropLabel">Daily</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<form>
+						<input id="daily-modal-sprint-id" type="hidden" />
+						<input id="daily-modal-issue-id" type="hidden" />
+						<input id="daily-modal-project-id" type="hidden" />
+						<input id="daily-modal-member-id" type="hidden" />
+
+						<div class="form-group">
+							<label for="daily-modal-issue-name">Incidencia</label>
+							<input id="daily-modal-issue-name" type="text" class="form-control" placeholder="issue-name"
+								readonly>
+						</div>
+						<div class="form-group">
+							<label for="daily-modal-description">Descripción</label>
+							<textarea id="daily-modal-description" class="form-control"
+								placeholder="Required" required></textarea>
+							<div class="invalid-feedback">
+							</div>
+						</div>
+
+						<div class="form-groupis-invalid">
+							<label for="daily-modal-description">Estado</label>
+							<select id="daily-modal-status-id" class="custom-select" required>
+								<option value="">Guardar como...</option>
+								<option value="0">Por hacer</option>
+								<option value="1">En curso</option>
+								<option value="2">Terminada</option>
+								<option value="3">Bloqueada</option>
+								<option value="4">Abortada</option>
+							</select>
+						</div>
+						<div class="invalid-feedback">
+							Example invalid input group feedback
+						</div>
+
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary">Save</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- Impediment-Modal -->
+	<div class="modal fade" id="impediment-modal" data-backdrop="static" data-keyboard="false" tabindex="-1"
+		role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="staticBackdropLabel">Daily</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<form>
+						<div class="form-group">
+							<label for="impediment--name">Incidencia</label>
+							<input id="impediment-name" type="text" class="form-control" placeholder="impediment-name">
+						</div>
+						<div class="form-group">
+							<label for="impediment-description">Descripción</label>
+							<textarea id="impediment-description" class="form-control is-invalid" placeholder="Required"
+								required></textarea>
+							<div class="invalid-feedback">
+							</div>
+						</div>
+
+						<div class="invalid-feedback">
+							Example invalid input group feedback
+						</div>
+
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary">Save</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>

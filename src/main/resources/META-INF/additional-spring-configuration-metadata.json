@@ -1,0 +1,37 @@
+{"properties": [
+  {
+    "name": "empathy.api.base.url",
+    "type": "java.lang.String",
+    "description": "A description for 'empathy.api.base.url'"
+  },
+  {
+    "name": "empathy.api.board.sprint.backlog.get",
+    "type": "java.lang.String",
+    "description": "A description for 'empathy.api.board.sprint.backlog.get'"
+  },
+  {
+    "name": "empathy.api.board.sprint.summary.get",
+    "type": "java.lang.String",
+    "description": "A description for 'empathy.api.board.sprint.summary.get'"
+  },
+  {
+    "name": "empathy.api.board.issue.team.get",
+    "type": "java.lang.String",
+    "description": "A description for 'empathy.api.board.issue.team.get'"
+  },
+  {
+    "name": "empathy.api.board.issue.team.member.backlog.get",
+    "type": "java.lang.String",
+    "description": "A description for 'empathy.api.board.issue.team.member.backlog.get'"
+  },
+  {
+    "name": "empathy.api.owner.project.find",
+    "type": "java.lang.String",
+    "description": "A description for 'empathy.api.owner.project.find'"
+  },
+  {
+    "name": "empathy.api.sprint.find.by.project.id",
+    "type": "java.lang.String",
+    "description": "A description for 'empathy.api.sprint.find.by.projectId'"
+  }
+]}
