@@ -18,8 +18,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import com.empathy.api.dto.board.SprintSummary;
 import com.empathy.api.dto.sprint.IssueMemberDaily;
+import com.empathy.api.dto.sprint.Sprint;
+import com.empathy.api.dto.sprint.TeamMemberSprintIssue;
 
 @RestController
 @RequestMapping("/sprint")
@@ -31,16 +32,16 @@ public class SprintController {
 	Logger logger = LoggerFactory.getLogger(SprintController.class);
 
 	@GetMapping(path = "/u/{ownerID}/project/{projectID}", produces = "application/json")
-	public List<SprintSummary> findByProjectId(@PathVariable String ownerID, @PathVariable String projectID) {
+	public List<Sprint> findByProjectId(@PathVariable String ownerID, @PathVariable String projectID) {
 
 		RestTemplate restTemplate = new RestTemplate();
 		String uri = env.getProperty("empathy.api.base.url") + env.getProperty("empathy.api.sprint.find.by.project.id")
 				.replace("{ownerID}", ownerID).replace("{projectID}", projectID);
 
-		ResponseEntity<SprintSummary[]> sprintResponse = restTemplate.getForEntity(uri, SprintSummary[].class);
-		SprintSummary[] sprintArray = sprintResponse.getBody();
+		ResponseEntity<Sprint[]> sprintResponse = restTemplate.getForEntity(uri, Sprint[].class);
+		Sprint[] sprintArray = sprintResponse.getBody();
 
-		List<SprintSummary> sprintList = Arrays.asList(sprintArray);
+		List<Sprint> sprintList = Arrays.asList(sprintArray);
 
 		return sprintList;
 	}
@@ -49,8 +50,26 @@ public class SprintController {
 	public void saveDaily(@Valid @RequestBody IssueMemberDaily issueMemberDaily) {
 		RestTemplate restTemplate = new RestTemplate();
 		String uri = env.getProperty("empathy.api.base.url") + env.getProperty("empathy.api.sprint.member.daily.post");
+		logger.debug("empathy.api.sprint.member.daily.post: {}",uri);
 		restTemplate.postForEntity(uri, issueMemberDaily, IssueMemberDaily.class);
 		
 	}
+	
+	@GetMapping(path = "/{sprintID}/team/member/u/{memberID}/parent/{parentID}/backlog/{issueLevel}", produces = "application/json")
+	public List<TeamMemberSprintIssue> findTeamMemberSprintBacklog(@PathVariable String sprintID, @PathVariable String memberID, @PathVariable String parentID,@PathVariable Integer issueLevel) {
+
+		RestTemplate restTemplate = new RestTemplate();
+		// uri : /team/member/sprint/u/{memberID}/{sprintID}/{parentID}/{issueLevel}
+		String uri = env.getProperty("empathy.api.base.url") + env.getProperty("empathy.api.board.sprint.issue.team.member.backlog.get")
+				.replace("{sprintID}", sprintID).replace("{memberID}", memberID).replace("{parentID}", parentID).replace("{issueLevel}", String.valueOf(issueLevel));
+
+		ResponseEntity<TeamMemberSprintIssue[]> sprintResponse = restTemplate.getForEntity(uri, TeamMemberSprintIssue[].class);
+		TeamMemberSprintIssue[] sprintArray = sprintResponse.getBody();
+
+		List<TeamMemberSprintIssue> sprintList = Arrays.asList(sprintArray);
+
+		return sprintList;
+	}
+	
 
 }

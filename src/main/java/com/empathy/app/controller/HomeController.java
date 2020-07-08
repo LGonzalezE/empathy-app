@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.empathy.api.dto.board.SprintSummary;
+import com.empathy.api.dto.sprint.Sprint;
 import com.empathy.util.JsonUtil;
 
 @Controller
@@ -38,13 +38,13 @@ public class HomeController {
 		logger.debug("empathy.api.board.sprint.summary.get: {}", uri);
 		RestTemplate restTemplate = new RestTemplate();
 
-		SprintSummary sprintSummary = restTemplate.getForObject(uri, SprintSummary.class);
+		Sprint sprint= restTemplate.getForObject(uri, Sprint.class);
 
-		logger.debug("sprintSummary: {}", JsonUtil.toJson(sprintSummary));
+		logger.debug("sprint: {}", JsonUtil.toJson(sprint));
 
 		ModelAndView mav = new ModelAndView("/home/board");
 		mav.addObject("appName", env.getProperty("spring.application.name"));
-		mav.addObject("sprintSummary", sprintSummary);
+		mav.addObject("sprint", sprint);
 		return mav;
 
 	}

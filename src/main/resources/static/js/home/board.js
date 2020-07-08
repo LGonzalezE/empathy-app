@@ -29,6 +29,11 @@ var GLOBALS = {
             estimatedDate: null,
             createdDate: null
         }
+    },
+    data: {
+        backlog: {
+            issues: []
+        }
     }
 }
 
@@ -36,21 +41,23 @@ var GLOBALS = {
 $(document).ready(
     function () {
 
-        $("#sprint-name").html($("#sprintName").val());
+        $("#sprint-header-name").html($("#sprint-name").val());
 
-        $("#sprint-stats-progress").css("width",
-            $("#sprintStatsProgress").val() + "%");
+        $("#sprint-header-metadata-progress").css("width",
+            $("#sprint-metada-progress").val() + "%");
         getBacklog();
     });
 
 function getBacklog() {
 
+    var url ="{appBaseURL}/board/backlog/{projectID}/{sprintID}/0"
+    .replace("{appBaseURL}", GLOBALS.demo.appBaseURL)
+    .replace("{projectID}", GLOBALS.demo.projectID)
+    .replace("{sprintID}", GLOBALS.demo.sprintID);
+
     $.ajax({
         method: "GET",
-        url: "{appBaseURL}/board/backlog/{projectID}/{sprintID}"
-            .replace("{appBaseURL}", GLOBALS.demo.appBaseURL)
-            .replace("{projectID}", GLOBALS.demo.projectID)
-            .replace("{sprintID}", GLOBALS.demo.sprintID),
+        url: url,
         data: null,
         processData: false,
     }).done(
@@ -59,8 +66,10 @@ function getBacklog() {
             var sprint = "#backlog-container";
             for (var i = 0; i < data.length; i++) {
                 var issue = data[i];
+                GLOBALS.data.backlog.issues[issue.issueID] = issue;
                 var issueContainerTemplate = $(
                     "#issue-container-template").html();
+
 
                 // issue
                 issueContainerTemplate = replaceAll(
@@ -81,18 +90,22 @@ function getBacklog() {
                     memberItemTemplate = replaceAll(
                         memberItemTemplate, "{memberID}",
                         member.userID);
+                    memberItemTemplate = replaceAll(
+                        memberItemTemplate, "{issueID}",
+                        issue.issueID);
 
                     $(teamContainer).append(memberItemTemplate);
                     //member backlog
-                    $("#member-name-" + member.userID).html(member.name);
+                    $("#member-name-" + issue.issueID + "-" + member.userID).html(member.name);
 
-                    var memberIssueProgressContainer = $("#member-backlog-container-" + member.userID);
+                    var memberIssueProgressContainer = $("#member-backlog-container-" + issue.issueID + "-" + member.userID);
 
                     var memberBacklog = member.metaData.backlog;
 
                     //for each issue in member backlog
                     for (var mb = 0; mb < memberBacklog.length; mb++) {
                         var memberIssue = memberBacklog[mb];
+                        GLOBALS.data.backlog.issues[memberIssue.issueID] = memberIssue;
                         var memberIssueProgressLaneTemplate = $("#member-issue-progress-lane-template").html();
                         memberIssueProgressLaneTemplate = replaceAll(memberIssueProgressLaneTemplate, "{issueID}", memberIssue.issueID);
                         //add member issue
@@ -121,13 +134,40 @@ function replaceAll(str, find, replace) {
 
 
 function showDaily(issueID) {
-
-    var memberIssueID = "#member-issue-id-" + issueID;
-    var memberIssueName = "#member-issue-name-" + issueID;
-    var memberIssueDescription = "#member-issue-description-" + issueID;
-
-    $("#daily-modal").modal("show");
-    $("#daily-modal-issue-name").val($(memberIssueName).val());
+    var issue = GLOBALS.data.backlog.issues[issueID];
     console.log(issueID);
+    $("#daily-modal").modal("show");
+    $("#daily-modal-issue-name").val(issue.name);
+    $("#daily-modal-issue-id").val(issue.issueID);
+}
+
+function saveDaily() {
+    var issueID = $("#daily-modal-issue-id").val();
+    var issue = GLOBALS.data.backlog.issues[issueID];
+    var daily = GLOBALS.templates.daily;
+
+    daily.issueMemberDailyID.sprintID = $("#sprint-id").val();
+    daily.issueMemberDailyID.projectID = $("#project-id").val();
+    daily.issueMemberDailyID.issueID = issue.issueID;
+    daily.issueMemberDailyID.memberID = GLOBALS.demo.userID;
+    daily.createdDate = null;
+    daily.description = $("#daily-modal-description").val();
+    daily.statusID = $("#daily-modal-status-id").val();
+
+    var url = "{appBaseURL}/sprint/u/daily"
+        .replace("{appBaseURL}", GLOBALS.demo.appBaseURL);
+
+    console.log("[POST] " + url);
+
+    $.ajax({
+        contentType: "application/json; charset=utf-8",
+        method: "POST",
+        url: url,
+        data: JSON.stringify(daily),
+        processData: false,
+    }).done(
+        function (data) {
+            console.log(data);
+        });
 
 }

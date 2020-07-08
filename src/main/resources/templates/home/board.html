@@ -47,12 +47,12 @@
 	</template>
 
 	<template id="member-item-template">
-		<div id="member-item-{memberID}" class="row">
-			<div id="member-avatar-{memberID}" class="col-2 text-center">
-				<img src="/img/avatar/avatar-default.png" style="width: 96px" /> <span
-					id="member-name-{memberID}"></span>
+		<div id="member-item-{issueID}-{memberID}" class="row">
+			<div id="member-avatar-{issueID}-{memberID}" class="col-2 text-center">
+				<img src="/img/avatar/{memberID}.png" style="width: 96px" /> <span
+					id="member-name-{issueID}-{memberID}"></span>
 			</div>
-			<div id="member-backlog-container-{memberID}" class="col-10 ">
+			<div id="member-backlog-container-{issueID}-{memberID}" class="col-10 ">
 			</div>
 		</div>
 	</template>
@@ -82,8 +82,11 @@
 	</form>
 
 	<form id="sprint">
-		<input id="sprintName" type="hidden" th:value="${sprintSummary.name}" />
-		<input id="sprintStatsProgress" type="hidden" th:value="${sprintSummary.metaData.progress}" />
+		
+		<input id="sprint-id" type="hidden" th:value="${sprint.sprintID.sprintID}" />
+		<input id="project-id" type="hidden" th:value="${sprint.sprintID.projectID}" />
+		<input id="sprint-name" type="hidden" th:value="${sprint.name}" />
+		<input id="sprint-metada-progress" type="hidden" th:value="${sprint.metaData.progress}" />
 	</form>
 
 	<div id="sprint-container" class="container">
@@ -112,12 +115,12 @@
 		
 		<div id="sprint-header-container" class="row" style="border-bottom-style: dotted;">
 			<div id="sprint-name-container" class="col-3">
-				<h1 id="sprint-name"></h1>
+				<h1 id="sprint-header-name"></h1>
 			</div>
-			<div id="sprint-progress-container" class="col-9"
+			<div id="sprint-header-progress-container" class="col-9"
 				style="padding-top: 25px; padding-right: 5px; padding-bottom: 5px; padding-left: 5px;">
 				<div class="progress">
-					<div id="sprint-stats-progress" class="progress-bar bg-success" role="progressbar" style="width: 0%"
+					<div id="sprint-header-metadata-progress" class="progress-bar bg-success" role="progressbar" style="width: 0%"
 						aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
 				</div>
 			</div>
@@ -188,8 +191,8 @@
 					</form>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-					<button type="button" class="btn btn-primary">Save</button>
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+					<button type="button" class="btn btn-primary" onclick="saveDaily()">Guardar</button>
 				</div>
 			</div>
 		</div>

@@ -33,5 +33,15 @@
     "name": "empathy.api.sprint.find.by.project.id",
     "type": "java.lang.String",
     "description": "A description for 'empathy.api.sprint.find.by.projectId'"
+  },
+  {
+    "name": "empathy.api.sprint.member.daily.post",
+    "type": "java.lang.String",
+    "description": "A description for 'empathy.api.sprint.member.daily.post'"
+  },
+  {
+    "name": "empathy.api.board.sprint.issue.team.member.backlog.get",
+    "type": "java.lang.String",
+    "description": "A description for 'empathy.api.board.sprint.issue.team.member.backlog.get'"
   }
 ]}
