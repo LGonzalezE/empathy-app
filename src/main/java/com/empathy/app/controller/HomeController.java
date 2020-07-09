@@ -24,6 +24,14 @@ public class HomeController {
 		return mav;
 
 	}
+	
+	@GetMapping("/login")
+	public ModelAndView loginPage(Model model) {
+		ModelAndView mav = new ModelAndView("/home/login");
+		mav.addObject("app-name", env.getProperty("spring.application.name"));
+		return mav;
+
+	}
 
 	@GetMapping("/board/{projectID}")
 	public ModelAndView getBoard(Model model, @PathVariable String projectID) {

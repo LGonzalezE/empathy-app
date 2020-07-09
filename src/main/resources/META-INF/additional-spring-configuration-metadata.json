@@ -28,5 +28,10 @@
     "name": "empathy.api.user.get",
     "type": "java.lang.String",
     "description": "A description for 'empathy.api.user.get'"
+  },
+  {
+    "name": "empathy.api.sprint.member.daily.post",
+    "type": "java.lang.String",
+    "description": "A description for 'empathy.api.sprint.member.daily.post'"
   }
 ]}

@@ -1,10 +1,4 @@
-var GLOBALS = {
-    demo:
-    {
-        userID: "9998306c-6bf6-46f4-b4f4-d2bfd1052418",
-        appBaseURL: "http://localhost:8081",
-        projectID: "22753F4D3598484AB4DA086B7532BCE7"
-    },
+var GLOBALS = {    
     defaults:
     {
         sprint: { statusID: "DOING" }
@@ -33,14 +27,19 @@ var GLOBALS = {
             createdDate: null
         }
     },
+    sesion: {
+        user: null
+    },
     data: {
+        project: null,
         sprint: {
             backlog: {
                 root: []
             }
         },
         issue: [],
-        user: []
+        user: [],
+        daily: null
 
     }
 }
@@ -49,16 +48,25 @@ var GLOBALS = {
 $(document).ready(
     function () {
 
+        if (localStorage.getItem("user") == null) {
+            window.location.href = "/dashboard";
+            return;
+        }
+
+        GLOBALS.sesion.user = JSON.parse(localStorage.getItem("user"));
+        $("#sesion-user-name").html(GLOBALS.sesion.user.name);
+        
+        GLOBALS.data.project = JSON.parse(localStorage.getItem("project"));
         getProjectSprintByStatus();
+
 
 
     });
 
 
 function getProjectSprintByStatus() {
-    var url = "{appBaseURL}/sprint/project/{projectID}/status/{statusID}/find"
-        .replace("{appBaseURL}", GLOBALS.demo.appBaseURL)
-        .replace("{projectID}", GLOBALS.demo.projectID)
+    var url = "/sprint/project/{projectID}/status/{statusID}/find"
+        .replace("{projectID}", GLOBALS.data.project.projectID)
         .replace("{statusID}", GLOBALS.defaults.sprint.statusID);
 
 
@@ -98,7 +106,6 @@ function findRootBySprintID() {
         processData: false,
     }).done(
         function (data) {
-            console.log(data);
             for (var index = 0; index < data.length; index++) {
                 var issue = data[index];
                 GLOBALS.data.issue[issue.issueID] = issue;
@@ -223,14 +230,14 @@ function renderTeamMemberBacklog(rootIssueID) {
 
     for (var childIndex = 0; childIndex < childs.length; childIndex++) {
         var childID = childs[childIndex];
-        var child = GLOBALS.data.issue[childID];        
+        var child = GLOBALS.data.issue[childID];
         var memberIssueProgressContainer = $("#member-backlog-container-" + child.parentID + "-" + child.ownerID);
         var memberIssueProgressLaneTemplate = $("#member-issue-progress-lane-template").html();
         memberIssueProgressLaneTemplate = replaceAll(memberIssueProgressLaneTemplate, "{issueID}", child.issueID);
         //add member issue                
         $(memberIssueProgressContainer).append(memberIssueProgressLaneTemplate);
         var memberIssueProgressID = "#member-issue-progress-" + child.issueID;
-        $(memberIssueProgressID).css("width", "50%");
+        $(memberIssueProgressID).css("width", child.metaData.progress + "%");
     }
 
 
@@ -244,30 +251,72 @@ function replaceAll(str, find, replace) {
 
 
 function showDaily(issueID) {
-    var issue = GLOBALS.data.backlog.issues[issueID];
-    console.log(issueID);
+    var issue = GLOBALS.data.issue[issueID];
     $("#daily-modal").modal("show");
     $("#daily-modal-issue-name").val(issue.name);
     $("#daily-modal-issue-id").val(issue.issueID);
+    $("#daily-modal-description").val("");
 }
 
 function saveDaily() {
     var issueID = $("#daily-modal-issue-id").val();
-    var issue = GLOBALS.data.backlog.issues[issueID];
+    var sprint = GLOBALS.data.sprint;
+    var issue = GLOBALS.data.issue[issueID];
     var daily = GLOBALS.templates.daily;
 
-    daily.issueMemberDailyID.sprintID = $("#sprint-id").val();
-    daily.issueMemberDailyID.projectID = $("#project-id").val();
+
+    daily.issueMemberDailyID.sprintID = sprint.sprintID.sprintID;
+    daily.issueMemberDailyID.projectID = issue.projectID;
     daily.issueMemberDailyID.issueID = issue.issueID;
-    daily.issueMemberDailyID.memberID = GLOBALS.demo.userID;
+    daily.issueMemberDailyID.memberID = GLOBALS.sesion.user.userID;
     daily.createdDate = null;
     daily.description = $("#daily-modal-description").val();
     daily.statusID = $("#daily-modal-status-id").val();
 
-    var url = "{appBaseURL}/sprint/u/daily"
-        .replace("{appBaseURL}", GLOBALS.demo.appBaseURL);
+    var url = "/sprint/u/daily";
 
-    console.log("[POST] " + url);
+    GLOBALS.data.daily = daily;
+    //bloqued
+
+    if (daily.statusID == "3") {
+
+        showImpediment(issueID);
+    }
+    else {
+
+        $.ajax({
+            contentType: "application/json; charset=utf-8",
+            method: "POST",
+            url: url,
+            data: JSON.stringify(daily),
+            processData: false,
+        }).success(
+            function (data) {
+                $("#daily-modal").modal("hide");
+            });
+
+    }
+
+}
+
+function showImpediment(issueID) {
+    $("#impediment-modal").modal("show");
+    $("#impediment-name").val("");
+    $("#impediment-description").val("");
+}
+
+
+function saveImpediment() {
+
+    var url = "/sprint/u/daily";
+    var impediment = GLOBALS.templates.impediment;
+    var daily = GLOBALS.data.daily;
+    impediment.name = $("#impediment-name").val();
+    impediment.description = $("#impediment-description").val();
+    daily.impediments=[];
+    daily.impediments.push(impediment);
+
+    console.log(daily);
 
     $.ajax({
         contentType: "application/json; charset=utf-8",
@@ -275,12 +324,15 @@ function saveDaily() {
         url: url,
         data: JSON.stringify(daily),
         processData: false,
-    }).done(
+    }).success(
         function (data) {
-            console.log(data);
+            $("#impediment-modal").modal("hide");
+            $("#daily-modal").modal("hide");
         });
 
 }
 
-
-
+function logout(){
+	localStorage.clear();
+	window.location.href = "/";
+}

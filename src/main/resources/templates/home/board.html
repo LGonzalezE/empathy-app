@@ -41,6 +41,7 @@
 		<div id="issue-lane-{issueID}" class="row" style="border-bottom-style: dotted;">
 			<div id="issue-item-{issueID}" class="col-3">
 				<p id="issue-description-{issueID}"></p>
+				<button type="button" class="btn btn-primary btn-sm" onclick="showDaily('{issueID}')">Daily</button>
 			</div>
 			<div id="issue-backlog-container-{issueID}" class="col-9"></div>
 		</div>
@@ -72,21 +73,10 @@
 		</div>
 	</template>
 
-	<form id="app">
-		<input id="appName" type="hidden" th:value="${appName}" />
-	</form>
-
-	<form id="sprint">
-
-		<input id="sprint-id" type="hidden" />
-		<input id="project-id" type="hidden" />
-		<input id="sprint-name" type="hidden" />
-		<input id="sprint-metada-progress" type="hidden" />
-	</form>
 
 	<div id="sprint-container" class="container">
 		<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-			<a class="navbar-brand" href="#">Empahty App</a>
+			<a class="navbar-brand" href="/">Empahty App</a>
 			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
 				aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
@@ -95,15 +85,16 @@
 			<div class="collapse navbar-collapse" id="navbarSupportedContent">
 				<ul class="navbar-nav mr-auto">
 					<li class="nav-item active">
-						<a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+						<a class="nav-link" href="/">Inicio <span class="sr-only">(current)</span></a>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link" href="/dashboard">Dashboard</a>
+						<a class="nav-link" href="/dashboard">Panel de control</a>
 					</li>
 				</ul>
-				<form class="form-inline my-2 my-lg-0">
-					<input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-					<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+				<form class="form-inline my-2 my-lg-0">		
+					
+				<button type="button" class="btn btn-light" ><span id="sesion-user-name">(user)</span></button>		
+					<button class="btn btn-secondary my-2 my-sm-0" onclick="logout()" type="button" >Salir</button>
 				</form>
 			</div>
 		</nav>
@@ -208,26 +199,26 @@
 				<div class="modal-body">
 					<form>
 						<div class="form-group">
-							<label for="impediment--name">Incidencia</label>
-							<input id="impediment-name" type="text" class="form-control" placeholder="impediment-name">
+							<label for="impediment-name">Impedimento</label>
+							<input id="impediment-name" type="text" class="form-control" placeholder="">
 						</div>
 						<div class="form-group">
 							<label for="impediment-description">Descripción</label>
-							<textarea id="impediment-description" class="form-control is-invalid" placeholder="Required"
+							<textarea id="impediment-description" class="form-control" placeholder="Required"
 								required></textarea>
 							<div class="invalid-feedback">
 							</div>
 						</div>
 
 						<div class="invalid-feedback">
-							Example invalid input group feedback
+							Datos requeridos
 						</div>
 
 					</form>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-					<button type="button" class="btn btn-primary">Save</button>
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+					<button type="button" class="btn btn-danger" onclick="saveImpediment()" >Guardar</button>
 				</div>
 			</div>
 		</div>
