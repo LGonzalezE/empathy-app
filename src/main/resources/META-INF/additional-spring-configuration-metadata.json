@@ -5,43 +5,28 @@
     "description": "A description for 'empathy.api.base.url'"
   },
   {
-    "name": "empathy.api.board.sprint.backlog.get",
+    "name": "empathy.api.sprint.backlog.issue.root",
     "type": "java.lang.String",
-    "description": "A description for 'empathy.api.board.sprint.backlog.get'"
+    "description": "A description for 'empathy.api.sprint.backlog.issue.root'"
   },
   {
-    "name": "empathy.api.board.sprint.summary.get",
+    "name": "empathy.api.sprint.find.by.project.id.and.status.id",
     "type": "java.lang.String",
-    "description": "A description for 'empathy.api.board.sprint.summary.get'"
+    "description": "A description for 'empathy.api.sprint.find.by.project.id.and.status.id'"
   },
   {
-    "name": "empathy.api.board.issue.team.get",
+    "name": "empathy.api.sprint.backlog.issue.find.childs.by.parent.id",
     "type": "java.lang.String",
-    "description": "A description for 'empathy.api.board.issue.team.get'"
+    "description": "A description for 'empathy.api.sprint.backlog.issue.find.childs.by.parent.id'"
   },
   {
-    "name": "empathy.api.board.issue.team.member.backlog.get",
+    "name": "empathy.api.team.member.project.find",
     "type": "java.lang.String",
-    "description": "A description for 'empathy.api.board.issue.team.member.backlog.get'"
+    "description": "A description for 'empathy.api.team.member.project.find'"
   },
   {
-    "name": "empathy.api.owner.project.find",
+    "name": "empathy.api.user.get",
     "type": "java.lang.String",
-    "description": "A description for 'empathy.api.owner.project.find'"
-  },
-  {
-    "name": "empathy.api.sprint.find.by.project.id",
-    "type": "java.lang.String",
-    "description": "A description for 'empathy.api.sprint.find.by.projectId'"
-  },
-  {
-    "name": "empathy.api.sprint.member.daily.post",
-    "type": "java.lang.String",
-    "description": "A description for 'empathy.api.sprint.member.daily.post'"
-  },
-  {
-    "name": "empathy.api.board.sprint.issue.team.member.backlog.get",
-    "type": "java.lang.String",
-    "description": "A description for 'empathy.api.board.sprint.issue.team.member.backlog.get'"
+    "description": "A description for 'empathy.api.user.get'"
   }
 ]}

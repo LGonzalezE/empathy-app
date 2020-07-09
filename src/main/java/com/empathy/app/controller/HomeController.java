@@ -8,11 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
-
-import com.empathy.api.dto.sprint.Sprint;
-import com.empathy.util.JsonUtil;
 
 @Controller
 public class HomeController {
@@ -24,27 +20,17 @@ public class HomeController {
 	@GetMapping("/")
 	public ModelAndView homePage(Model model) {
 		ModelAndView mav = new ModelAndView("/home/home");
-		mav.addObject("appName", env.getProperty("spring.application.name"));
+		mav.addObject("app-name", env.getProperty("spring.application.name"));
 		return mav;
 
 	}
 
-	@GetMapping("/board/{projectID}/{sprintID}")
-	public ModelAndView getBoard(Model model, @PathVariable String projectID, @PathVariable String sprintID) {
-
-		// get sprint summary
-		String uri = env.getProperty("empathy.api.base.url") + env.getProperty("empathy.api.board.sprint.summary.get")
-				.replace("{projectID}", projectID).replace("{sprintID}", sprintID);
-		logger.debug("empathy.api.board.sprint.summary.get: {}", uri);
-		RestTemplate restTemplate = new RestTemplate();
-
-		Sprint sprint= restTemplate.getForObject(uri, Sprint.class);
-
-		logger.debug("sprint: {}", JsonUtil.toJson(sprint));
+	@GetMapping("/board/{projectID}")
+	public ModelAndView getBoard(Model model, @PathVariable String projectID) {
 
 		ModelAndView mav = new ModelAndView("/home/board");
 		mav.addObject("appName", env.getProperty("spring.application.name"));
-		mav.addObject("sprint", sprint);
+		
 		return mav;
 
 	}

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import com.empathy.api.dto.project.Project;
+import com.empathy.api.dto.project.TeamMemberProject;
 
 @RestController
 @RequestMapping("/project")
@@ -25,19 +25,20 @@ public class ProjectController {
 
 	Logger logger = LoggerFactory.getLogger(ProjectController.class);
 
-	@GetMapping(path = "/u/{ownerID}/find", produces = "application/json")
-	public List<Project> getBacklog(@PathVariable String ownerID) {
+	@GetMapping(path = "/team/member/{memberID}/project/find", produces = "application/json")
+	public List<TeamMemberProject> getBacklog(@PathVariable String memberID) {
 
 		RestTemplate restTemplate = new RestTemplate();
 		String uri = env.getProperty("empathy.api.base.url")
-				+ env.getProperty("empathy.api.owner.project.find").replace("{ownerID}", ownerID);
+				+ env.getProperty("empathy.api.team.member.project.find").replace("{memberID}", memberID);
 
-		ResponseEntity<Project[]> projectResponse = restTemplate.getForEntity(uri, Project[].class);
-		Project[] projectArray = projectResponse.getBody();
-		
-		List<Project> projectList = Arrays.asList(projectArray);
+		ResponseEntity<TeamMemberProject[]> teamMemberProjectResponse = restTemplate.getForEntity(uri,
+				TeamMemberProject[].class);
+		TeamMemberProject[] teamMemberProjectArray = teamMemberProjectResponse.getBody();
 
-		return projectList;
+		List<TeamMemberProject> teamMemberProjectList = Arrays.asList(teamMemberProjectArray);
+
+		return teamMemberProjectList;
 	}
 
 }

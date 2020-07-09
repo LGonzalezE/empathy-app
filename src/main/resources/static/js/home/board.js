@@ -3,8 +3,11 @@ var GLOBALS = {
     {
         userID: "9998306c-6bf6-46f4-b4f4-d2bfd1052418",
         appBaseURL: "http://localhost:8081",
-        projectID: "ad50bc8c-9e77-4973-9548-671e2606e2e5",
-        sprintID: "5e302ac8-687f-443b-9ea4-340466d3090f"
+        projectID: "22753F4D3598484AB4DA086B7532BCE7"
+    },
+    defaults:
+    {
+        sprint: { statusID: "DOING" }
     },
     templates: {
         daily: {
@@ -31,9 +34,14 @@ var GLOBALS = {
         }
     },
     data: {
-        backlog: {
-            issues: []
-        }
+        sprint: {
+            backlog: {
+                root: []
+            }
+        },
+        issue: [],
+        user: []
+
     }
 }
 
@@ -41,19 +49,18 @@ var GLOBALS = {
 $(document).ready(
     function () {
 
-        $("#sprint-header-name").html($("#sprint-name").val());
+        getProjectSprintByStatus();
 
-        $("#sprint-header-metadata-progress").css("width",
-            $("#sprint-metada-progress").val() + "%");
-        getBacklog();
+
     });
 
-function getBacklog() {
 
-    var url ="{appBaseURL}/board/backlog/{projectID}/{sprintID}/0"
-    .replace("{appBaseURL}", GLOBALS.demo.appBaseURL)
-    .replace("{projectID}", GLOBALS.demo.projectID)
-    .replace("{sprintID}", GLOBALS.demo.sprintID);
+function getProjectSprintByStatus() {
+    var url = "{appBaseURL}/sprint/project/{projectID}/status/{statusID}/find"
+        .replace("{appBaseURL}", GLOBALS.demo.appBaseURL)
+        .replace("{projectID}", GLOBALS.demo.projectID)
+        .replace("{statusID}", GLOBALS.defaults.sprint.statusID);
+
 
     $.ajax({
         method: "GET",
@@ -63,70 +70,173 @@ function getBacklog() {
     }).done(
         function (data) {
 
-            var sprint = "#backlog-container";
-            for (var i = 0; i < data.length; i++) {
-                var issue = data[i];
-                GLOBALS.data.backlog.issues[issue.issueID] = issue;
-                var issueContainerTemplate = $(
-                    "#issue-container-template").html();
-
-
-                // issue
-                issueContainerTemplate = replaceAll(
-                    issueContainerTemplate, "{issueID}", issue.issueID);
-                //add issue
-                $(sprint).append(issueContainerTemplate);
-                $("#issue-description-" + issue.issueID).html(issue.description);
-
-                // member
-                var team = issue.metaData.team;
-                var teamContainerID = "#issue-backlog-container-"
-                    + issue.issueID;
-                var teamContainer = $(teamContainerID);
-                for (var t = 0; t < team.length; t++) {
-                    var member = team[t];
-                    var memberItemTemplate = $(
-                        "#member-item-template").html();
-                    memberItemTemplate = replaceAll(
-                        memberItemTemplate, "{memberID}",
-                        member.userID);
-                    memberItemTemplate = replaceAll(
-                        memberItemTemplate, "{issueID}",
-                        issue.issueID);
-
-                    $(teamContainer).append(memberItemTemplate);
-                    //member backlog
-                    $("#member-name-" + issue.issueID + "-" + member.userID).html(member.name);
-
-                    var memberIssueProgressContainer = $("#member-backlog-container-" + issue.issueID + "-" + member.userID);
-
-                    var memberBacklog = member.metaData.backlog;
-
-                    //for each issue in member backlog
-                    for (var mb = 0; mb < memberBacklog.length; mb++) {
-                        var memberIssue = memberBacklog[mb];
-                        GLOBALS.data.backlog.issues[memberIssue.issueID] = memberIssue;
-                        var memberIssueProgressLaneTemplate = $("#member-issue-progress-lane-template").html();
-                        memberIssueProgressLaneTemplate = replaceAll(memberIssueProgressLaneTemplate, "{issueID}", memberIssue.issueID);
-                        //add member issue
-                        $(memberIssueProgressContainer).append(memberIssueProgressLaneTemplate);
-                        var memberIssueID = "#member-issue-id-" + memberIssue.issueID;
-                        var memberIssueName = "#member-issue-name-" + memberIssue.issueID;
-                        var memberIssueDescription = "#member-issue-description-" + memberIssue.issueID;
-                        var memberIssueProgressID = "#member-issue-progress-" + memberIssue.issueID;
-                        $(memberIssueID).val(memberIssue.issueID);
-                        $(memberIssueName).val(memberIssue.name);
-                        $(memberIssueDescription).val(memberIssue.description);
-                        $(memberIssueProgressID).css("width", memberIssue.metaData.progress);
-
-
-                    }
-
-                }
-            }
+            GLOBALS.data.sprint = data[0];
+            renderSprint();
+            findRootBySprintID();
 
         });
+
 }
+
+
+function renderSprint() {
+    var sprint = GLOBALS.data.sprint;
+
+    $("#sprint-header-name").html(sprint.name);
+    $("#sprint-header-metadata-progress").css("width", sprint.metaData.progress + "%");
+
+}
+
+function findRootBySprintID() {
+
+    var url = "/sprint/backlog/issue/sprint/{sprintID}/root".replace("{sprintID}", GLOBALS.data.sprint.sprintID.sprintID);
+
+    $.ajax({
+        method: "GET",
+        url: url,
+        data: null,
+        processData: false,
+    }).done(
+        function (data) {
+            console.log(data);
+            for (var index = 0; index < data.length; index++) {
+                var issue = data[index];
+                GLOBALS.data.issue[issue.issueID] = issue;
+                if (typeof GLOBALS.data.sprint.backlog == 'undefined') {
+                    GLOBALS.data.sprint.backlog = {};
+                    GLOBALS.data.sprint.backlog.root = [];
+                }
+                GLOBALS.data.sprint.backlog.root.push(issue.issueID);
+                renderBacklogRoot(issue.issueID);
+            }
+
+            findByChildsByParentID();
+        });
+
+}
+
+function findByChildsByParentID() {
+
+    var root = GLOBALS.data.sprint.backlog.root;
+
+    for (var rootIndex = 0; rootIndex < root.length; rootIndex++) {
+        var parentID = root[rootIndex];
+        var url = "/sprint/backlog/issue/{parentID}/childs/find".replace("{parentID}", parentID);
+
+        $.ajax({
+            method: "GET",
+            url: url,
+            data: null,
+            processData: false,
+        }).done(
+            function (data) {
+
+                for (var childIndex = 0; childIndex < data.length; childIndex++) {
+                    var child = data[childIndex];
+
+                    GLOBALS.data.issue[child.issueID] = child;
+                    var parentIssue = GLOBALS.data.issue[child.parentID];
+                    if (typeof parentIssue.teamMembers == 'undefined')
+                        parentIssue.teamMembers = [];
+                    if (!parentIssue.teamMembers.includes(child.ownerID)) {
+                        parentIssue.teamMembers.push(child.ownerID);
+                    }
+
+                    if (typeof parentIssue.child == 'undefined')
+                        parentIssue.child = [];
+                    if (!parentIssue.child.includes(child.issueID)) {
+                        parentIssue.child.push(child.issueID);
+                    }
+                }
+                if (data.length > 0) {
+                    var rootIssueID;
+                    rootIssueID = data[0].parentID;
+                    renderRootIssueTeamMember(rootIssueID);
+                }
+
+            });
+    }
+
+}
+function renderRootIssueTeamMember(rootIssueID) {
+    var rootIssue = GLOBALS.data.issue[rootIssueID];
+    var teamMembers = rootIssue.teamMembers;
+    var teamContainerID = "#issue-backlog-container-" + rootIssue.issueID;
+    var teamContainer = $(teamContainerID);
+
+    for (var memberIndex = 0; memberIndex < teamMembers.length; memberIndex++) {
+        var memberID = teamMembers[memberIndex];
+        var memberItemTemplate = $("#member-item-template").html();
+        memberItemTemplate = replaceAll(memberItemTemplate, "{memberID}", memberID);
+        memberItemTemplate = replaceAll(memberItemTemplate, "{issueID}", rootIssue.issueID);
+        $(teamContainer).append(memberItemTemplate);
+        getUser(memberID);
+    }
+
+    renderTeamMemberBacklog(rootIssue.issueID);
+}
+
+function getUser(userID) {
+
+    var url = "/user/{userID}".replace("{userID}", userID);
+    $.ajax({
+        method: "GET",
+        url: url,
+        data: null,
+        processData: false,
+    }).done(
+        function (data) {
+            GLOBALS.data.user[data.userID] = data;
+            var userAvatarID = "user-avatar-" + data.userID;
+            $("[id='" + userAvatarID + "']").each(function (e) {
+                var userID = $(this).attr("data-userID");
+                var img = "/img/avatar/" + userID + ".png";
+                $(this).attr("src", img);
+            });
+
+            var userNameID = "user-name-" + data.userID;
+            $("[id='" + userNameID + "']").each(function (e) {
+                var userID = $(this).attr("data-userID");
+                var user = GLOBALS.data.user[userID];
+                $(this).html(user.name);
+            });
+            return data;
+        });
+
+}
+
+
+
+function renderBacklogRoot(issueID) {
+
+    var backlogContainer = "#backlog-container";
+    var rootIssue = GLOBALS.data.issue[issueID];
+    var rootIssueContainerTemplate = $("#issue-container-template").html();
+    rootIssueContainerTemplate = replaceAll(rootIssueContainerTemplate, "{issueID}", rootIssue.issueID);
+    $(backlogContainer).append(rootIssueContainerTemplate);
+    $("#issue-description-" + rootIssue.issueID).html(rootIssue.description);
+}
+
+function renderTeamMemberBacklog(rootIssueID) {
+    var rootIssue = GLOBALS.data.issue[rootIssueID];
+    var childs = rootIssue.child;
+
+    for (var childIndex = 0; childIndex < childs.length; childIndex++) {
+        var childID = childs[childIndex];
+        var child = GLOBALS.data.issue[childID];        
+        var memberIssueProgressContainer = $("#member-backlog-container-" + child.parentID + "-" + child.ownerID);
+        var memberIssueProgressLaneTemplate = $("#member-issue-progress-lane-template").html();
+        memberIssueProgressLaneTemplate = replaceAll(memberIssueProgressLaneTemplate, "{issueID}", child.issueID);
+        //add member issue                
+        $(memberIssueProgressContainer).append(memberIssueProgressLaneTemplate);
+        var memberIssueProgressID = "#member-issue-progress-" + child.issueID;
+        $(memberIssueProgressID).css("width", "50%");
+    }
+
+
+}
+
+
 
 function replaceAll(str, find, replace) {
     return str.replace(new RegExp(find, 'g'), replace);
@@ -171,3 +281,6 @@ function saveDaily() {
         });
 
 }
+
+
+

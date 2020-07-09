@@ -47,10 +47,9 @@
 	</template>
 
 	<template id="member-item-template">
-		<div id="member-item-{issueID}-{memberID}" class="row">
-			<div id="member-avatar-{issueID}-{memberID}" class="col-2 text-center">
-				<img src="/img/avatar/{memberID}.png" style="width: 96px" /> <span
-					id="member-name-{issueID}-{memberID}"></span>
+		<div class="row">
+			<div class="col-2 text-center">
+				<img id="user-avatar-{memberID}" src="" style="width: 96px" data-userID="{memberID}" /> <span id="user-name-{memberID}" data-userID="{memberID}"></span>
 			</div>
 			<div id="member-backlog-container-{issueID}-{memberID}" class="col-10 ">
 			</div>
@@ -59,19 +58,15 @@
 
 	<template id="member-issue-progress-lane-template">
 		<div id="member-issue-progress-lane-{issueID}" class="row"
-			style="padding-top: 5px; padding-right: 5px; padding-bottom: 5px; padding-left: 5px;">
-			<form id="member-issue-{issueID}">
-				<input id="member-issue-name-{issueID}" type="hidden">
-				<input id="member-issue-description-{issueID}" type="hidden">
-				<input id="member-issue-id-{issueID}" type="hidden">
-			</form>
+			style="padding-top: 5px; padding-right: 5px; padding-bottom: 5px; padding-left: 5px;">			
 			<div class="col-12">
 				<a href="#" onclick="showDaily('{issueID}')">
-				<div class="progress">
-					<div id="member-issue-progress-{issueID}" class="progress-bar progress-bar-striped"
-						role="progressbar" style="width: 50%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+					<div class="progress">
+						<div id="member-issue-progress-{issueID}" class="progress-bar progress-bar-striped"
+							role="progressbar" style="width: 50%" aria-valuenow="0" aria-valuemin="0"
+							aria-valuemax="100">
+						</div>
 					</div>
-				</div>
 				</a>
 			</div>
 		</div>
@@ -82,11 +77,11 @@
 	</form>
 
 	<form id="sprint">
-		
-		<input id="sprint-id" type="hidden" th:value="${sprint.sprintID.sprintID}" />
-		<input id="project-id" type="hidden" th:value="${sprint.sprintID.projectID}" />
-		<input id="sprint-name" type="hidden" th:value="${sprint.name}" />
-		<input id="sprint-metada-progress" type="hidden" th:value="${sprint.metaData.progress}" />
+
+		<input id="sprint-id" type="hidden" />
+		<input id="project-id" type="hidden" />
+		<input id="sprint-name" type="hidden" />
+		<input id="sprint-metada-progress" type="hidden" />
 	</form>
 
 	<div id="sprint-container" class="container">
@@ -112,7 +107,7 @@
 				</form>
 			</div>
 		</nav>
-		
+
 		<div id="sprint-header-container" class="row" style="border-bottom-style: dotted;">
 			<div id="sprint-name-container" class="col-3">
 				<h1 id="sprint-header-name"></h1>
@@ -120,8 +115,8 @@
 			<div id="sprint-header-progress-container" class="col-9"
 				style="padding-top: 25px; padding-right: 5px; padding-bottom: 5px; padding-left: 5px;">
 				<div class="progress">
-					<div id="sprint-header-metadata-progress" class="progress-bar bg-success" role="progressbar" style="width: 0%"
-						aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+					<div id="sprint-header-metadata-progress" class="progress-bar bg-success" role="progressbar"
+						style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
 				</div>
 			</div>
 		</div>
@@ -167,8 +162,8 @@
 						</div>
 						<div class="form-group">
 							<label for="daily-modal-description">Descripción</label>
-							<textarea id="daily-modal-description" class="form-control"
-								placeholder="Required" required></textarea>
+							<textarea id="daily-modal-description" class="form-control" placeholder="Required"
+								required></textarea>
 							<div class="invalid-feedback">
 							</div>
 						</div>
